@@ -1,16 +1,66 @@
 ---
-
+import '../styles/global.css';
+import Medidas from "../components/Medidas"
 ---
 
 <html lang="en">
 	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" sizes="any" type="image/svg+xml" href="https://ruuf.cl/_next/static/media/mail-logo.eed78104.svg" />
 		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Ruuf - Test</title>
 	</head>
-	<body>
-		<h1>Astro</h1>
+	<body class="w-full h-screen bg-neutral-100 select-none text-[rgb(48,50,58)] overflow-hidden">
+		<div class="container mx-auto h-full">
+			<div class="w-full h-16 fixed left-0 bg-gradient-to-b from-white to-transparent flex justify-center items-center">
+				<img src="https://ruuf.cl/_next/static/media/mail-logo.eed78104.svg" alt=" Ruuf">
+			</div>
+			<Medidas id="panel" title="Medidas Panel" next="techo" client:visible />
+			<Medidas id="techo" title="Medidas Techo" client:visible>
+				<button id="submit" type="submit" class="w-full cursor-pointer text-lg outline-none border p-3 rounded-full text-white bg-[rgb(90,110,213)] hover:scale-105 hover:shadow-md transition-all duration-200">Calcular</button>
+			</Medidas>
+			<div id="result" class="w-full h-full flex items-center justify-center font-medium">
+				<div class="text-center">
+					<h1 class="text-5xl">En este techo caben <b id="paneles">?</b> paneles.</h1>
+					<p class="text-2xl mt-5"><b id="normales">?</b> en la forma propuesta.</p>
+					<p class="text-2xl mt-2"><b id="rotados">?</b> en 90 grados.</p>
+					<button id="back" class="mt-10 w-full cursor-pointer text-lg outline-none border p-3 rounded-full text-white bg-[rgb(90,110,213)] hover:scale-105 hover:shadow-md transition-all duration-200">Volver al Inicio</button>
+				</div>
+			</div>
 	</body>
 </html>
+
+<script>
+	import { calculo } from "./area"
+
+	window.addEventListener("load", (e) => {
+		const height = window.scrollY
+		if(height > 0){
+			window.scrollTo({top: 0, behavior: "smooth"})
+		}
+	})
+
+	document.getElementById("back")?.addEventListener("click", (e) => {
+		window.scrollTo({top: 0, behavior: "smooth"})
+	})
+
+	document.getElementById("submit")?.addEventListener("click", async (e) => {
+		e.preventDefault()
+		const a = document.getElementById("alto_panel") as HTMLInputElement
+		const b = document.getElementById("ancho_panel") as HTMLInputElement
+		const x = document.getElementById("ancho_techo") as HTMLInputElement
+		const y = document.getElementById("alto_techo") as HTMLInputElement
+
+		const {totales, rotados} = await calculo(parseInt(x.value),parseInt(y.value),parseInt(a.value),parseInt(b.value))
+		
+		const p_totales = document.getElementById("paneles") as HTMLParagraphElement
+		const p_normales = document.getElementById("normales") as HTMLParagraphElement
+		const p_rotados = document.getElementById("rotados") as HTMLParagraphElement
+
+		p_totales.innerHTML = totales.toString()
+		p_normales.innerHTML = (totales - rotados).toString()
+		p_rotados.innerHTML = rotados.toString()
+
+		const result = document.getElementById("result") as HTMLDivElement
+		result.scrollIntoView({behavior: "smooth"})
+	})
+</script>
